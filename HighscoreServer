@@ -1,0 +1,39 @@
+String game = req.getParameter("CooLQuiZ");
+String name = req.getParameter("player");
+String pointsStr = req.getParameter("punkte");
+String maxStr = req.getParameter("max");
+
+int points = 0;
+int max = 50;
+
+if (pointsStr != null) { points = Integer.parseInt(pointsStr); }
+if (points >0 && name != null) { addHighscore(game, name, points); }
+if (maxStr != null) { max = Iteger.parseInt(maxStr); }
+
+returnHighscores(resp, game max);
+
+private void addHighscore(String game, String name, int points) {
+  DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  
+  Key gameKey = KeyFactory.createKey("CooLQuiZ", game);
+  Entity highscore = new Entity("highscore", gameKey);
+  
+  highscore.setProperty("player", name);
+  highscore.setProperty("points", points);
+  datastore.put(highsore);
+}
+
+private void returnHighscores() {
+
+DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+Key gameKey = KeyFactory.createKey("CooLQuiZ", game);
+
+Query query = new Query("highscore", gameKey);
+
+query.addSort("points", Query.SortDirection.DESCENDING);
+
+List<Entity> highscores = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(max));
+
+for(Entity e: highscores) {
+  resp.getWriter().printIn(e.getProperty("name") + "," + e.getProperty("points"));
+}
